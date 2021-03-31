@@ -5,6 +5,7 @@ LAYOUT_WITH_LEGEND()
 
 Person(cliente, "Cliente", "Um cliente que deseja alugar ou devolver um veículo.")
 System(pwa, "PWA", " ")
+System(site, "Site", " ")
 System(api, "API Rest", " ")
 System(catalogoApi, "Catálogo", "")
 System(pagamentoApi, "Pagamento", "")
@@ -16,7 +17,9 @@ System_Ext(emailMarketingService, "E-mail Marketing", "Mailchimp")
 
 
 Rel(cliente, pwa, " ")
+Rel(cliente, site, " ")
 Rel(pwa, api, " ")
+Rel(site, api, " ")
 Rel(api, catalogoApi, " ")
 Rel(api, pagamentoApi, " ")
 Rel(pagamentoApi, pagamentoService, " ")

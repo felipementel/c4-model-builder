@@ -1,7 +1,7 @@
 {
 	"plantumlVersion": "latest",
 	"projectName": "EAS Eletric Auto Share",
-	"homepageName": "Overview",
+	"homepageName": "EAS Eletric Auto Share",
 	"rootFolder": "src",
 	"distFolder": "docs",
 	"generateMD": false,

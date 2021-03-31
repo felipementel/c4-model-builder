@@ -3,13 +3,27 @@
 
 LAYOUT_WITH_LEGEND()
 
-Person(cl, "Cliente", "Usuário do sistema logado na aplicação PWA.")
-System(cr, "Central de Requisiçoes", "Permite a interação para que os caros sejam liberados para uso, devolvidos, realização de checklist ou para sinalizar problemas durante o uso.")
-'System_Ext(es, "E-mail system", "The internal Microsoft Exchange e-mail system.")
-'System_Ext(mbs, "Mainframe Banking System", "Stores all of the core banking information about customers, accounts, transactions, etc.")
+Person(cliente, "Cliente", "Um cliente que deseja alugar ou devolver um veículo.")
+System(pwa, "PWA", " ")
+System(api, "API Rest", " ")
+System(catalogoApi, "Catálogo", "")
+System(pagamentoApi, "Pagamento", "")
+System_Ext(bot, "Bot", "Bot do Azure")
+System_Ext(pagamentoService, "Pagamento", "Mercado Pago")
+System_Ext(CMSService, "CMS", "Webflow")
+System_Ext(autenticacaoService, "Autenticação", "Azure AD")
+System_Ext(emailMarketingService, "E-mail Marketing", "Mailchimp")
 
-Rel(cl, cr, "item")
-'Rel(es, pbc, "Sends e-mails to")
-'Rel(ibs, es, "Sends e-mails", "SMTP")
-'Rel(ibs, mbs, "Uses")
+
+Rel(cliente, pwa, " ")
+Rel(pwa, api, " ")
+Rel(api, catalogoApi, " ")
+Rel(api, pagamentoApi, " ")
+Rel(pagamentoApi, pagamentoService, " ")
+Rel(CMSService, cliente, " ")
+Rel(autenticacaoService, cliente, " ")
+Rel(emailMarketingService, cliente, " ")
+Rel(bot, cliente, " ")
+
 @enduml
+

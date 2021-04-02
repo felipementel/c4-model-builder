@@ -30,5 +30,7 @@ Rel(cliente, CMSService, " ")
 Rel(cliente, autenticacaoService, " ")
 Rel(emailMarketingService, cliente, " ")
 Rel(ECMApi, googleMaps, " ")
+
+'SHOW_DYNAMIC_LEGEND(false)
 @enduml
 

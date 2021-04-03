@@ -1,4 +1,9 @@
 @startuml
+
+'
+'DOC Icons Azure
+'https://github.com/plantuml-stdlib/Azure-PlantUML
+
 !include https://raw.githubusercontent.com/adrianvlupu/C4-PlantUML/latest/C4_Deployment.puml
 !define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
 !define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
@@ -8,87 +13,81 @@
 !include DEVICONS/mongodb.puml
 !include DEVICONS/msql_server.puml
 !include FONTAWESOME/users.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-1/dist/AzureCommon.puml
+
+!define AzurePuml https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-1/dist
+!includeurl AzurePuml/Compute/AzureFunction.puml
+!includeurl AzurePuml/Databases/AzureCosmosDb.puml
+!includeurl AzurePuml/Databases/AzureRedisCache.puml
+!includeurl AzurePuml/Databases/AzureSqlDatabase.puml
+!includeurl AzurePuml/InternetOfThings/AzureIoTHub.puml
+!includeurl AzurePuml/Web/AzureCDN.puml
+!includeurl AzurePuml/Web/AzureWebApp.puml
+!includeurl AzurePuml/Identity/AzureActiveDirectoryB2C.puml
+!includeurl AzurePuml/Mobile/AzureNotificationHubs.puml
 
 LAYOUT_WITH_LEGEND()
-
-' title testeeeeeeeeeeeeeeeeeeeeeeeeeeee
-
 Person(cliente, "Cliente", "cliente logado na aplicacao", "users")
 System(pwa, "PWA", "external", "angular")
 
+AzureActiveDirectoryB2C(azureAd, "Autenticação", "B2C")
+Rel_L(pwa, azureAd, " ")
+
 Enterprise_Boundary(privado, "privado") {
-    System_Ext(api, "API Rest", "pool de api's")
-   
+   AzureWebApp(api, "API Rest", "pool de api's")
+
+   AzureRedisCache(redis, "Cache", "Redis")
+   Rel_L(api, redis, " ")
+
    System_Boundary(catalogo1, "Catalogo - boundery context") { 
-    System(catalogo2, "API Catalogo", " ")
-    ContainerDb(catalogo3, "NoSql", "MongoDb", "msql_server")
-    System_Ext(catalogo4, "CDN", " ")
+    AzureWebApp(catalogo2, "Catalogo", "API")
+    AzureCosmosDb(catalogo3, "NoSql", "CosmosDB")
+    AzureCDN(catalogo4, "CDN", "Azure CDN")
     Rel_D(catalogo2, catalogo3, "tcp")
     Rel_L(catalogo4, catalogo3, "https")
    }
 
+   System_Boundary(ecm1, "ECM - Engine Control Module - boundery context") { 
+     AzureWebApp(ecm2, "ECM - Engine Control Module", "API")
+     AzureCosmosDb(ecm3, "ECM - Engine Control Module", "CosmosDb")
+     Rel_R(ecm2, ecm3, "tcp")
+
+     AzureIoTHub(ecm4, "IoT", "Azure IoT Hub")    
+     Rel(ecm2, ecm4, " ") 
+   }
+
    System_Boundary(pagamento1, "Pagamento - boundery context") { 
-    System(pagamento2, "Gateway pagamento", " ", "java")
-    ContainerDb(pagamento3, "Gateway pagamento", " ")
+    AzureWebApp(pagamento2, "Gateway pagamento", "API")
+    AzureSqlDatabase(pagamento3, "Database", "Sql Server")
     Rel_D(pagamento2, pagamento3, " ")
    }
 
+   System_Boundary(checkinCheckout, "Check-in / Check-out - boundery context") { 
+    AzureWebApp(checkinCheckout1, "Check-in / Check-out", "API")
+    AzureSqlDatabase(checkinCheckout2, "Database", "Sql Server")
+    Rel_D(checkinCheckout1, checkinCheckout2, " ")
+   }
+
    System_Boundary(notificacao1, "Notificacao - boundery context") {
-    System(notificacao2, "Notificação", " ", "python")
+    AzureWebApp(notificacao2, "Notificação", "API")
     System_Ext(notificacao3, "Twillo", "Mail marketing")
     System_Ext(notificacao4, "Disparopro", "SMS")
-    System_Ext(notificacao5, "Notification Hub", "Push notification")
-    ' SystemQueue(notificacao1, "API Notificacao")
-    ' SystemQueue_Ext(notificacao2, "API Notificacao")
-    ' ContainerQueue(notificacao3, "API Notificacao")
-    ' ContainerQueue_Ext(notificacao4, "API Notificacao")
-    }    
-
-    System_Boundary(ecm1, "ECM - Engine Control Module - boundery context") { 
-     System(ecm2, "ECM - Engine Control Module", " ")
-     ContainerDb(ecm3, "ECM - Engine Control Module", " ")
-     Rel_R(ecm2, ecm3, "tcp")
-
-     System_Ext(ecm4, "IoT Hub", " ")    
-     Rel(ecm2, ecm4, " ") 
-   }
+    AzureNotificationHubs(notificacao5, "push", "Azure Notification Hub")
+    }        
    
 }
 
 Rel_D(cliente, pwa, "https")
 Rel_D(pwa, api, "https")
-Rel_D(api, catalogo2, "https")
-Rel_D(api, pagamento2, "https")
-Rel_D(api, notificacao2, "https")
+Rel_L(api, catalogo2, "https")
+Rel_D(api, checkinCheckout1, "https")
+Rel_D(checkinCheckout1, pagamento2, "https")
+Rel_D(checkinCheckout1, notificacao2, "https")
+Rel_D(ecm2, notificacao2, "https")
 Rel_D(api, ecm2, "https")
 
 Rel_D(notificacao2, notificacao3, "https")
 Rel_D(notificacao2, notificacao4, "https")
 Rel_D(notificacao2, notificacao5, "https")
-
-
-'  ContainerDb(apiCache, "Cache", " ", " ")
-'     System(catalogoApi, "Catálogo", "")
-'     System(notificacaoApi, "Notificação", "")
-'     System(CheckInCheckouApi, "Check-in / Check-out", "reserva com pre-autorização")
-'     System(ECMApi, "ECM", "")
-'     ContainerDb(ECMData, "No-SQL", " ", " ")
-'     ContainerDb(catalogoSQL, "SQL", " ", " ")
-'     System_Ext(CDNBlobImages, "CDN", " ")
-'     System(pagamentoApi, "Pagamento", "")
-'     ContainerDb(pagamentoSQL, "SQL", " ", " ")
-
-' Rel(pwa, api, "https")
-' Rel(api, apiCache, "tcp")
-' Rel(api, ECMApi, "https")
-' Rel(api, catalogoApi, "https")
-' Rel(catalogoApi, catalogoSQL, "tcp")
-' Rel(catalogoApi, CDNBlobImages, "https")
-' Rel(pagamentoApi, pagamentoSQL, "tcp")
-' Rel(pagamentoApi, CheckInCheckouApi, "tcp")
-' Rel(api, CheckInCheckouApi, "https")
-' Rel(ECMApi, ECMData, "tcp")
-' Rel(CheckInCheckouApi, notificacaoApi, "tcp")
-' Rel(ECMApi, notificacaoApi, "tcp")
 
 @enduml

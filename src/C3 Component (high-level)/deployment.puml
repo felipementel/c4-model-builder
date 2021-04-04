@@ -1,0 +1,110 @@
+@startuml
+
+'
+'DOC Icons Azure
+'https://github.com/plantuml-stdlib/Azure-PlantUML
+
+!include https://raw.githubusercontent.com/adrianvlupu/C4-PlantUML/latest/C4_Deployment.puml
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+!include DEVICONS/angular.puml
+!include DEVICONS/java.puml
+!include DEVICONS/python.puml
+!include DEVICONS/mongodb.puml
+!include DEVICONS/msql_server.puml
+!include FONTAWESOME/users.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-1/dist/AzureCommon.puml
+
+!define AzurePuml https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-1/dist
+!includeurl AzurePuml/Compute/AzureFunction.puml
+!includeurl AzurePuml/Databases/AzureCosmosDb.puml
+!includeurl AzurePuml/Databases/AzureRedisCache.puml
+!includeurl AzurePuml/Databases/AzureSqlDatabase.puml
+!includeurl AzurePuml/InternetOfThings/AzureIoTHub.puml
+!includeurl AzurePuml/Web/AzureCDN.puml
+!includeurl AzurePuml/Web/AzureWebApp.puml
+!includeurl AzurePuml/Identity/AzureActiveDirectoryB2C.puml
+!includeurl AzurePuml/Mobile/AzureNotificationHubs.puml
+!includeurl AzurePuml/Integration/AzureServiceBus.puml
+
+LAYOUT_WITH_LEGEND()
+Person(cliente, "Cliente", "cliente logado na aplicacao", "users")
+System(pwa, "PWA", "external", "angular")
+
+AzureActiveDirectoryB2C(azureAd, "Autenticação", "B2C")
+Rel_L(pwa, azureAd, " ")
+
+Enterprise_Boundary(privado, "privado") {
+  AzureWebApp(api, "API Rest", "pool de api's")
+
+  AzureRedisCache(redis, "Cache", "Redis")
+  Rel_L(api, redis, " ")
+
+  System_Boundary(catalogoBC, "Catalogo - boundery context") {
+
+    AzureWebApp(catalogoApi, "Catalogo", "API")
+    AzureCosmosDb(catalogoDb, "NoSql", "CosmosDB")
+    AzureCDN(catalogoCDN, "CDN", "Azure CDN")
+    Rel_R(catalogoApi, catalogoDb, "tcp")
+    Rel_U(catalogoCDN, catalogoDb, "https")
+  }
+
+  System_Boundary(ecmBC, "ECM - Engine Control Module - boundery context") {
+
+    AzureWebApp(ecmApi, "ECM - Engine Control Module", "API")
+    AzureCosmosDb(ecmDb, "ECM - Engine Control Module", "CosmosDb")
+    Rel_R(ecmApi, ecmDb, "tcp")
+
+    AzureIoTHub(ecmIoT, "IoT", "Azure IoT Hub")
+    Rel(ecmDb, ecmIoT, " ")
+  }
+
+  System_Boundary(pagamentoBC, "Pagamento - boundery context") {
+
+    AzureWebApp(pagamentoApi, "Gateway pagamento", "API")
+    AzureSqlDatabase(pagamentoDb, "Database", "Sql Server")
+    Rel_D(pagamentoApi, pagamentoDb, " ")
+  }
+
+  System_Boundary(checkinCheckoutBC, "Check-in / Check-out - boundery context") {
+
+    AzureWebApp(checkinCheckoutApi, "Check-in / Check-out", "API")
+    AzureSqlDatabase(checkinCheckoutDb, "Database", "Sql Server")
+    Rel_D(checkinCheckoutApi, checkinCheckoutDb, " ")
+  }
+
+  System_Boundary(notificacaoBC, "Notificacao - boundery context") {
+    AzureWebApp(notificacaoApi, "Notificação", "API")
+    System_Ext(notificacaoMailMarketing, "Twillo", "Mail marketing")
+    System_Ext(notificacaoSMS, "Disparopro", "SMS")
+    AzureNotificationHubs(notificacaoPushNotification, "push", "Azure Notification Hub")
+  }
+
+  AzureServiceBus(serviceBus, "Bus", "Azure Service Bus")
+}
+
+Rel_D(cliente, pwa, "https")
+Rel_D(pwa, api, "https")
+Rel_D(api, catalogoApi, "https")
+Rel_D(api, checkinCheckoutApi, "https")
+'Rel_D(checkinCheckout1, pagamento2, "https")
+'Rel_D(checkinCheckout1, notificacao2, "https")
+'Rel_D(ecm2, notificacao2, "https")
+Rel_D(api, ecmApi, "https")
+
+Rel_D(notificacaoApi, notificacaoMailMarketing, "https")
+Rel_D(notificacaoApi, notificacaoSMS, "https")
+Rel_D(notificacaoApi, notificacaoPushNotification, "https")
+
+'Rel(checkinCheckoutApi, serviceBus, "AMQP")
+'Rel(pagamentoApi, serviceBus, "AMQP")
+'Rel(notificacaoApi, serviceBus, "AMQP")
+'Rel(ecmApi, serviceBus, "AMQP")
+
+checkinCheckoutApi ---> serviceBus 
+pagamentoApi ---> serviceBus 
+notificacaoApi ---> serviceBus 
+ecmApi ---> serviceBus
+catalogoApi ---> serviceBus
+
+@enduml

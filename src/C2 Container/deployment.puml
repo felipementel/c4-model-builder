@@ -4,20 +4,19 @@
 LAYOUT_WITH_LEGEND()
 
 System(pwa, "PWA", " ")
-'System(site, "Site", " ")
 
 System_Boundary(eeas, "EAS Eletric Auto Share") {
     System(api, "API Rest", "pool de api's")
-    ContainerDb(apiCache, "Cache", " ", " ")
+    ContainerDb(apiCache, "Cache", "No-SQL", " ")
     System(catalogoApi, "Catálogo", "")
     System(notificacaoApi, "Notificação", "")
     System(CheckInCheckouApi, "Check-in / Check-out", "reserva com pre-autorização")
     System(ECMApi, "ECM", "")
-    ContainerDb(ECMData, "No-SQL", " ", " ")
-    ContainerDb(catalogoSQL, "SQL", " ", " ")
+    ContainerDb(ECMData, "Database", "No-SQL", " ")
+    ContainerDb(catalogoSQL, "Database", "SQL", "")
     System_Ext(CDNBlobImages, "CDN", " ")
     System(pagamentoApi, "Pagamento", "")
-    ContainerDb(pagamentoSQL, "SQL", " ", " ")
+    ContainerDb(pagamentoSQL, "Database", "SQL", " ")
 }
 
 Rel(pwa, api, "https")

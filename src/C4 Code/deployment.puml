@@ -1,0 +1,5 @@
+@startuml
+
+C4Model --> MITArq : em_breve
+
+@enduml

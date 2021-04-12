@@ -34,6 +34,7 @@ System(pwa, "PWA", "external", "angular")
 
 AzureActiveDirectoryB2C(azureAd, "Autenticação", "B2C")
 Rel_L(pwa, azureAd, " ")
+AzureCDN(cdn, "CDN", "Azure CDN")
 
 Enterprise_Boundary(privado, "privado") {
   AzureWebApp(api, "API Rest", "pool de api's")
@@ -45,9 +46,8 @@ Enterprise_Boundary(privado, "privado") {
 
     AzureWebApp(catalogoApi, "Catalogo", "API")
     AzureCosmosDb(catalogoDb, "NoSql", "CosmosDB")
-    AzureCDN(catalogoCDN, "CDN", "Azure CDN")
-    Rel_R(catalogoApi, catalogoDb, "tcp")
-    Rel_U(catalogoCDN, catalogoDb, "https")
+    
+    Rel_D(catalogoApi, catalogoDb, "tcp")
   }
 
   System_Boundary(ecmBC, "ECM - Engine Control Module - boundery context") {
@@ -85,7 +85,8 @@ Enterprise_Boundary(privado, "privado") {
 }
 
 Rel_D(cliente, pwa, "https")
-Rel_D(pwa, api, "https")
+Rel_D(pwa, cdn, "https")
+Rel_D(cdn, api, "https")
 Rel_D(api, catalogoApi, "https")
 Rel_D(api, checkinCheckoutApi, "https")
 Rel_D(api, ecmApi, "https")
